@@ -1,0 +1,60 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: light-blue;
+  /* Set a background color */
+}
+
+.grid-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.grid-item {
+  background-color: transparent;
+  /* Set background color to transparent */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#center {
+  background-color: transparent;
+  border: none;
+  color: lightblue;
+  width: 25vw;
+  /* Set a fixed width */
+  height: 25vh;
+  /* Set a fixed height */
+  font-size: 20px;
+  /* Adjust font size */
+  cursor: pointer;
+  outline: none;
+  z-index: 1
+    /* Remove outline when clicked */
+}
+
+.distraction-container {
+  max-width: 25vw;
+  /* Same width as center button */
+  max-height: 25vh;
+  /* Same height as center button */
+  background-color: lightblue;
+  padding: 1vh;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+p {
+  font-size: 20px;
+}
