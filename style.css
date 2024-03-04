@@ -5,28 +5,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: light-blue;
-  /* Set a background color */
-}
-
-.grid-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-}
-
-.grid-item {
-  background-color: transparent;
-  /* Set background color to transparent */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background-image: url("https://media0.giphy.com/media/jsHNf0F6ggiR28Ynsu/giphy.gif?cid=82a1493b8ms4bxymhtqv2t23yuxxrgsrx0pfguyroojtr0tw&ep=v1_gifs_search&rid=giphy.gif&ct=g");
+  /* Set a background image */
 }
 
 #center {
-  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border: none;
   color: lightblue;
   width: 25vw;
@@ -37,8 +24,7 @@ body {
   /* Adjust font size */
   cursor: pointer;
   outline: none;
-  z-index: 1
-    /* Remove outline when clicked */
+  z-index: 1;
 }
 
 .distraction-container {
@@ -46,15 +32,22 @@ body {
   /* Same width as center button */
   max-height: 25vh;
   /* Same height as center button */
-  background-color: lightblue;
+  background-color: transparent;
   padding: 1vh;
 }
 
 img {
   max-width: 100%;
   max-height: 100%;
+  cursor: pointer;
 }
 
 p {
   font-size: 20px;
+}
+#center-text{
+  margin: auto;
+}
+#timer {
+  margin: auto;
 }

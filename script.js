@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const divs = document.querySelectorAll(".grid-item");
-  const occupancyStatus = Array.from(divs).map(() => false);
   let centerButtonData = {
     status: "cooldown",
     clicked: "cooldown",
@@ -10,102 +8,118 @@ document.addEventListener("DOMContentLoaded", function () {
   const center_button = document.getElementById("center"); //stores the center button
   center_button.addEventListener("click", () => {});
   function randomStatus() {
-    if (Math.random() > 0.5) {
-      return "click-now";
-    }
-    if (Math.random() > 0.1) {
-      return "cooldown";
-    }
+    if(Math.random()>0.6) return "cooldown";
+    if (Math.random() > 0.4) return "click-now"
     return "false-alarm-warning";
   } //helper function to randomize status
   var gameover = false;
   function updateCenter() {
+    var centerText= document.getElementById("center-text");
     if (centerButtonData.status == "click-now") {
       center_button.style.backgroundColor = "red";
       centerButtonData.clicked = "cooldown";
       centerButtonData.timeout = "game-over";
-      center_button.innerHTML = "Click me now!";
-      return;
+      centerText.textContent = "Click me now!";
     }
-    if (centerButtonData.status == "cooldown") {
+    else if (centerButtonData.status == "cooldown") {
       center_button.style.backgroundColor = "green";
       centerButtonData.clicked = "cooldown";
       centerButtonData.timeout = randomStatus();
-      center_button.innerHTML = "";
-      return;
+      centerText.textContent = "";
     }
-    if (centerButtonData.status == "false-alarm-warning") {
+    else if (centerButtonData.status == "false-alarm-warning") {
       center_button.style.backgroundColor = "green";
       centerButtonData.clicked = "false-alarm-warning";
       centerButtonData.timeout = "false-alarm";
-      center_button.innerHTML = "False alarm upcoming!";
-      return;
+      centerText.textContent = "False alarm upcoming!";
     }
-    if (centerButtonData.status == "false-alarm") {
+    else if (centerButtonData.status == "false-alarm") {
       center_button.style.backgroundColor = "red";
-      center_button.innerHTML = "Click me now!";
+      centerText.textContent = "Click me now!";
       centerButtonData.clicked = "game-over";
       centerButtonData.timeout = "cooldown";
-      return;
     }
-    if (centerButtonData.status == "game-over") {
+    else if (centerButtonData.status == "game-over") {
       center_button.style.backgroundColor = "yellow";
-      center_button.innerHTML =
-        "Game Over! You survived for " +
-        time / 10 +
-        " seconds! Click or refresh to play again";
+      centerText.textContent = "Game Over! Click or refresh to play again";
       centerButtonData.clicked = "cooldown";
       centerButtonData.timeout = "game-over";
-      gameover = true;
-      return;
     }
+
   } //adjusts the center button's appearance based on its status and whether it was clicked or timed out
   async function clock() {
+    let timer = document.getElementById("timer");
     while (true) {
-      if (gameover) return;
       await new Promise((resolve) => setTimeout(resolve, 100));
+      if(gameover){
+        time = 0;
+        continue;
+      }
       time += 1;
-      if (centerButtonData.status !== "game-over" && Math.random() < 0.1) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+      timer.textContent = (time/10)+" seconds";
+
+    }
+  }
+  async function buttonTimeoutCounter(){
+    while(!gameover){
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("tick")
+      if (centerButtonData.status !== "game-over" && Math.random() < 0.7) {
+        if(centerButtonData.timeout === "game-over") gameover = true;
         centerButtonData.status = centerButtonData.timeout;
         updateCenter();
       }
     }
-  } //keeps track of time and causes timeout changes to the center button
-  updateCenter(); //initialize the center button
+  }
+   //keeps track of time and causes timeout changes to the center button
+  function init(){
+    gameover = false;
+    time = 0;
+    updateCenter(); //initialize the center button
+    distract(); //setup the distractions
+    buttonTimeoutCounter();
+  }
   clock(); //start the clock
-  distract(); //setup the distractions
+
+  init();
   center_button.addEventListener("click", () => {
+    if(centerButtonData.clicked === "game-over") gameover = true;
+    else if (gameover) {
+      init();
+      console.log("this line ran")
+    }
     centerButtonData.status = centerButtonData.clicked;
     updateCenter();
-    if (gameover) {
-      gameover = false;
-      time = 0;
-      updateCenter();
-      clock();
-    }
   }); //when the center button is clicked, change its status and update its appearance
   async function distract() {
     let distractions = [];
-    const maxAttempts = 20; // Maximum attempts to find a non-overlapping position
-    while (true) {
+    const maxDistractions = 20; // Maximum possible distractions. Will usually reach about half.
+    while (!gameover) {
       await new Promise((resolve) => setTimeout(resolve, 100)); // Adjusts each 10th of a second
-      if (Math.random() > 0.95) {
-        // Add something 1% of the time
-        if (Math.random() < (1 / maxAttempts) * distractions.length) {
+      if (Math.random() > 0.8) {
+        // Add something 10% of the time; eg every second
+        if (Math.random() < (1 / maxDistractions) * distractions.length) {
           //
           const distraction = distractions.shift();
           distraction.parentNode.removeChild(distraction);
+          continue;
         } else {
-          let distractionContainer = await randomDistraction();
+          let distraction = await randomDistraction();
           const leftPosition = Math.random() * (100 - 25); // Generate random left position
           const topPosition = Math.random() * (100 - 25); // Generate random top position
-          distractionContainer.style.position = "absolute";
-          distractionContainer.style.left = leftPosition + "%";
-          distractionContainer.style.top = topPosition + "%";
-
-          distractions.push(distractionContainer);
-          document.body.appendChild(distractionContainer);
+          distraction.style.position = "absolute";
+          distraction.style.left = leftPosition + "%";
+          distraction.style.top = topPosition + "%";
+          distractions.push(distraction);
+          distraction.addEventListener("click", (event)=>{
+              const index = distractions.indexOf(event.target);
+              console.log("got here!")
+              if (index!==-1){
+                const killed = distractions.splice(index, 1)[0];
+                killed.parentNode.removeChild(killed);
+              }
+          });
+          document.body.appendChild(distraction);
         }
       }
     }
@@ -114,18 +128,16 @@ document.addEventListener("DOMContentLoaded", function () {
   async function randomDistraction() {
     const distractionContainer = document.createElement("div");
 
-    const random = Math.random();
+    //const random = Math.random();
     var distraction;
     /*if (random > 0.8) distraction = await getRandomQuote();
     else if (random > 0.4) */distraction = await getRandomGif();
     //else distraction = await getMeme();
 
-    distractionContainer.appendChild(distraction);
-    distractionContainer.classList.add("distraction-container");
 
-    return distractionContainer;
+    return distraction;
   }
-  async function getRandomQuote() {
+  async function getRandomQuote() { //currently unused
     //console.log("got quote")
     const response = await fetch("https://api.quotable.io/random");
     const data = await response.json();
@@ -140,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //console.log(quoteElement)
     return quoteElement;
   }
-  async function randomFont() {
+  async function randomFont() {//currently unused
     const fontFamilies = [
       "Arial",
       "Helvetica",
@@ -160,7 +172,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Randomly select a font family
     return fontFamilies[Math.floor(Math.random() * fontFamilies.length)];
   }
-  async function getMeme() {
+  async function getMeme() { //currently unused
     console.log("got meme");
     const response = await fetch("https://meme-api.com/gimme/cleanmemes");
     const data = await response.json();
