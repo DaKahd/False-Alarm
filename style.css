@@ -25,6 +25,8 @@ body {
   cursor: pointer;
   outline: none;
   z-index: 1;
+  border-radius: 2vh;
+
 }
 
 .distraction-container {
@@ -44,9 +46,11 @@ img {
 
 p {
   font-size: 20px;
+  text-align: center
 }
 #center-text{
   margin: auto;
+
 }
 #timer {
   margin: auto;

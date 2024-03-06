@@ -9,44 +9,47 @@ document.addEventListener("DOMContentLoaded", function () {
   center_button.addEventListener("click", () => {});
   function randomStatus() {
     if(Math.random()>0.6) return "cooldown";
-    if (Math.random() > 0.4) return "click-now"
+    if (Math.random() > 0.3) return "click-now"
     return "false-alarm-warning";
   } //helper function to randomize status
   var gameover = false;
   function updateCenter() {
     var centerText= document.getElementById("center-text");
-    if (centerButtonData.status == "click-now") {
-      center_button.style.backgroundColor = "red";
-      centerButtonData.clicked = "cooldown";
-      centerButtonData.timeout = "game-over";
-      centerText.textContent = "Click me now!";
+    switch(centerButtonData.status){
+      case "click-now":
+        center_button.style.backgroundColor = "red";
+        centerButtonData.clicked = "cooldown";
+        centerButtonData.timeout = "game-over";
+        centerText.textContent = "Click me now!";
+        break;
+      case "cooldown":
+        center_button.style.backgroundColor = "green";
+        centerButtonData.clicked = "cooldown";
+        centerButtonData.timeout = randomStatus();
+        centerText.textContent = "";
+        break;
+      case "false-alarm-warning":
+        center_button.style.backgroundColor = "green";
+        centerButtonData.clicked = "false-alarm-warning";
+        centerButtonData.timeout = "false-alarm";
+        centerText.textContent = "False alarm upcoming!";
+        break;
+      case "false-alarm":
+        center_button.style.backgroundColor = "red";
+        centerText.textContent = "Click me now!";
+        centerButtonData.clicked = "game-over";
+        centerButtonData.timeout = "cooldown";
+        break;
+      case "game-over":
+        center_button.style.backgroundColor = "yellow";
+        centerText.textContent = "Game Over! Click or refresh to play again";
+        centerButtonData.clicked = "cooldown";
+        centerButtonData.timeout = "game-over";
+        break;
     }
-    else if (centerButtonData.status == "cooldown") {
-      center_button.style.backgroundColor = "green";
-      centerButtonData.clicked = "cooldown";
-      centerButtonData.timeout = randomStatus();
-      centerText.textContent = "";
-    }
-    else if (centerButtonData.status == "false-alarm-warning") {
-      center_button.style.backgroundColor = "green";
-      centerButtonData.clicked = "false-alarm-warning";
-      centerButtonData.timeout = "false-alarm";
-      centerText.textContent = "False alarm upcoming!";
-    }
-    else if (centerButtonData.status == "false-alarm") {
-      center_button.style.backgroundColor = "red";
-      centerText.textContent = "Click me now!";
-      centerButtonData.clicked = "game-over";
-      centerButtonData.timeout = "cooldown";
-    }
-    else if (centerButtonData.status == "game-over") {
-      center_button.style.backgroundColor = "yellow";
-      centerText.textContent = "Game Over! Click or refresh to play again";
-      centerButtonData.clicked = "cooldown";
-      centerButtonData.timeout = "game-over";
-    }
+  
 
-  } //adjusts the center button's appearance based on its status and whether it was clicked or timed out
+  } //adjusts the center button's clock
   async function clock() {
     let timer = document.getElementById("timer");
     while (true) {
@@ -57,9 +60,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       time += 1;
       timer.textContent = (time/10)+" seconds";
-
     }
   }
+  //ensure timeouts occur for the center button
   async function buttonTimeoutCounter(){
     while(!gameover){
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -80,17 +83,20 @@ document.addEventListener("DOMContentLoaded", function () {
     buttonTimeoutCounter();
   }
   clock(); //start the clock
-
-  init();
+  init(); //start the game
   center_button.addEventListener("click", () => {
     if(centerButtonData.clicked === "game-over") gameover = true;
-    else if (gameover) {
-      init();
-      console.log("this line ran")
-    }
+    else if (gameover) init();
     centerButtonData.status = centerButtonData.clicked;
     updateCenter();
   }); //when the center button is clicked, change its status and update its appearance
+
+
+/**
+ * The rest of this code regards distractions.
+ * Right now, only the GIFS are used as distractions.
+ */
+
   async function distract() {
     let distractions = [];
     const maxDistractions = 20; // Maximum possible distractions. Will usually reach about half.
@@ -104,12 +110,11 @@ document.addEventListener("DOMContentLoaded", function () {
           distraction.parentNode.removeChild(distraction);
           continue;
         } else {
-          let distraction = await randomDistraction();
-          const leftPosition = Math.random() * (100 - 25); // Generate random left position
-          const topPosition = Math.random() * (100 - 25); // Generate random top position
+          let distraction = await getRandomGif();
+          //format distraction location
           distraction.style.position = "absolute";
-          distraction.style.left = leftPosition + "%";
-          distraction.style.top = topPosition + "%";
+          distraction.style.left =  Math.random() * (100 - 25)+ "%";
+          distraction.style.top = Math.random() * (100 - 25) + "%";
           distractions.push(distraction);
           distraction.addEventListener("click", (event)=>{
               const index = distractions.indexOf(event.target);
@@ -125,63 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  async function randomDistraction() {
-    const distractionContainer = document.createElement("div");
-
-    //const random = Math.random();
-    var distraction;
-    /*if (random > 0.8) distraction = await getRandomQuote();
-    else if (random > 0.4) */distraction = await getRandomGif();
-    //else distraction = await getMeme();
-
-
-    return distraction;
-  }
-  async function getRandomQuote() { //currently unused
-    //console.log("got quote")
-    const response = await fetch("https://api.quotable.io/random");
-    const data = await response.json();
-    const quoteElement = document.createElement("p");
-    quoteElement.textContent = `"${data.content}" - ${data.author}`;
-    quoteElement.style.fontFamily = await randomFont();
-    const randomColor = `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(
-      Math.random() * 256,
-    )}, ${Math.floor(Math.random() * 256)})`;
-    quoteElement.style.color = randomColor;
-    console.log("got quote");
-    //console.log(quoteElement)
-    return quoteElement;
-  }
-  async function randomFont() {//currently unused
-    const fontFamilies = [
-      "Arial",
-      "Helvetica",
-      "Times New Roman",
-      "Courier New",
-      "Verdana",
-      "Georgia",
-      "Palatino",
-      "Garamond",
-      "Bookman",
-      "Comic Sans MS",
-      "Trebuchet MS",
-      "Arial Black",
-      "Impact",
-    ];
-
-    // Randomly select a font family
-    return fontFamilies[Math.floor(Math.random() * fontFamilies.length)];
-  }
-  async function getMeme() { //currently unused
-    console.log("got meme");
-    const response = await fetch("https://meme-api.com/gimme/cleanmemes");
-    const data = await response.json();
-    const memeElement = document.createElement("img");
-    memeElement.src = data.url;
-    memeElement.style.maxHeight = "100%";
-    memeElement.style.maxWidth = "100%";
-    return memeElement;
-  }
 
   async function getRandomGif() {
     console.log("getting gif");
