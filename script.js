@@ -152,21 +152,5 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   //functions to deal with high scores
 
-  async function getHighScores(){
-    fetch('highscores.json')
-    .then(response => response.json())
-    .then(data => {
-      console.log(data.scores)
-      //add code to return the scores later
-      return data;
-    })
-    .catch(error => console.error('Error fetching high scores', error))
-  }
-/*async function addHighScore(){
-  data = await getHighScores();
-  return fetch('highscores.json')
-}
-*/
-  getHighScores()
 });
 
