@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
   async function buttonTimeoutCounter(){
     while(!gameover){
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("tick")
       if (centerButtonData.status !== "game-over" && Math.random() < 0.7) {
         if(centerButtonData.timeout === "game-over") gameover = true;
         centerButtonData.status = centerButtonData.timeout;
@@ -118,7 +117,6 @@ document.addEventListener("DOMContentLoaded", function () {
           distractions.push(distraction);
           distraction.addEventListener("click", (event)=>{
               const index = distractions.indexOf(event.target);
-              console.log("got here!")
               if (index!==-1){
                 const killed = distractions.splice(index, 1)[0];
                 killed.parentNode.removeChild(killed);
@@ -130,9 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-
   async function getRandomGif() {
-    console.log("getting gif");
     const apiKey = "vZVlUPBziF0UR81EDIZ24ohXVSm6IIpy";
     const url = `https://api.giphy.com/v1/gifs/random?api_key=${apiKey}&rating=g`;
 
@@ -144,7 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const imageUrl = data.data.images.original.url; // Accessing the correct property for the GIF URL
         const img = document.createElement("img");
         img.src = imageUrl;
-        console.log(imageUrl);
         return img;
       } else {
         console.error("Failed to fetch random GIF:", data.meta.msg);
@@ -155,6 +150,23 @@ document.addEventListener("DOMContentLoaded", function () {
       return null;
     }
   }
+  //functions to deal with high scores
 
-
+  async function getHighScores(){
+    fetch('highscores.json')
+    .then(response => response.json())
+    .then(data => {
+      console.log(data.scores)
+      //add code to return the scores later
+      return data;
+    })
+    .catch(error => console.error('Error fetching high scores', error))
+  }
+/*async function addHighScore(){
+  data = await getHighScores();
+  return fetch('highscores.json')
+}
+*/
+  getHighScores()
 });
+
