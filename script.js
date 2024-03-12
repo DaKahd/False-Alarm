@@ -150,7 +150,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return null;
     }
   }
-  //functions to deal with high scores
 
 });
 
